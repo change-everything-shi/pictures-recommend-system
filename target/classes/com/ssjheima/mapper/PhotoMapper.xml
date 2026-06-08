@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssjheima.mapper.PhotoMapper">
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into photo(user_id, title, description, tags, image_url, create_time, update_time)
+        values (#{userId},#{title},#{description},#{tags},#{imageUrl},#{createTime},#{updateTime})
+    </insert>
+
+    <select id="findFeedItemById" resultType="com.ssjheima.pojo.PhotoFeedItem">
+        select
+            p.id,
+            p.user_id,
+            u.username,
+            p.title,
+            p.description,
+            p.tags,
+            p.image_url,
+            p.create_time
+        from photo p
+        join user_account u on u.id = p.user_id
+        where p.id = #{id}
+        limit 1
+    </select>
+
+    <select id="listFeed" resultType="com.ssjheima.pojo.PhotoFeedItem">
+        select
+            p.id,
+            p.user_id,
+            u.username,
+            p.title,
+            p.description,
+            p.tags,
+            p.image_url,
+            p.create_time
+        from photo p
+        join user_account u on u.id = p.user_id
+        order by p.create_time desc
+    </select>
+
+    <select id="listAllFeedItems" resultType="com.ssjheima.pojo.PhotoFeedItem">
+        select
+            p.id,
+            p.user_id,
+            u.username,
+            p.title,
+            p.description,
+            p.tags,
+            p.image_url,
+            p.create_time
+        from photo p
+        join user_account u on u.id = p.user_id
+        order by p.create_time desc
+    </select>
+
+    <select id="listByIds" resultType="com.ssjheima.pojo.PhotoFeedItem">
+        select
+            p.id,
+            p.user_id,
+            u.username,
+            p.title,
+            p.description,
+            p.tags,
+            p.image_url,
+            p.create_time
+        from photo p
+        join user_account u on u.id = p.user_id
+        where p.id in
+        <foreach collection="list" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="listByUser" resultType="com.ssjheima.pojo.PhotoFeedItem">
+        select
+            p.id,
+            p.user_id,
+            u.username,
+            p.title,
+            p.description,
+            p.tags,
+            p.image_url,
+            p.create_time
+        from photo p
+        join user_account u on u.id = p.user_id
+        where p.user_id = #{userId}
+        order by p.create_time desc
+    </select>
+
+    <update id="updatePhoto" parameterType="com.ssjheima.pojo.Photo">
+        update photo
+        <set>
+            <if test="title != null">title = #{title},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="tags != null">tags = #{tags},</if>
+            <if test="updateTime != null">update_time = #{updateTime}</if>
+        </set>
+        where id = #{id} and user_id = #{userId}
+    </update>
+
+    <delete id="deleteOwn" parameterType="com.ssjheima.pojo.Photo">
+        delete from photo where id = #{id} and user_id = #{userId}
+    </delete>
+
+    <select id="listLikedByUser" resultType="com.ssjheima.pojo.PhotoFeedItem">
+        select
+            p.id,
+            p.user_id,
+            u.username,
+            p.title,
+            p.description,
+            p.tags,
+            p.image_url,
+            p.create_time
+        from photo_like l
+        join photo p on p.id = l.photo_id
+        join user_account u on u.id = p.user_id
+        where l.user_id = #{userId}
+        order by l.create_time desc
+    </select>
+
+    <select id="listFavoritedByUser" resultType="com.ssjheima.pojo.PhotoFeedItem">
+        select
+            p.id,
+            p.user_id,
+            u.username,
+            p.title,
+            p.description,
+            p.tags,
+            p.image_url,
+            p.create_time
+        from photo_favorite f
+        join photo p on p.id = f.photo_id
+        join user_account u on u.id = p.user_id
+        where f.user_id = #{userId}
+        order by f.create_time desc
+    </select>
+
+    <select id="listCommentedByUser" resultType="com.ssjheima.pojo.PhotoFeedItem">
+        select
+            p.id,
+            p.user_id,
+            u.username,
+            p.title,
+            p.description,
+            p.tags,
+            p.image_url,
+            p.create_time
+        from photo_comment c
+        join photo p on p.id = c.photo_id
+        join user_account u on u.id = p.user_id
+        where c.user_id = #{userId}
+        group by p.id, p.user_id, u.username, p.title, p.description, p.tags, p.image_url, p.create_time
+        order by max(c.create_time) desc
+    </select>
+
+</mapper>
+

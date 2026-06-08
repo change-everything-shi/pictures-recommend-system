@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssjheima.mapper.PhotoInteractionMapper">
+
+    <insert id="insertLike">
+        insert ignore into photo_like(photo_id, user_id, create_time)
+        values (#{photoId}, #{userId}, now())
+    </insert>
+
+    <select id="countLike" resultType="long">
+        select count(*) from photo_like where photo_id = #{photoId}
+    </select>
+
+    <select id="existsLike" resultType="long">
+        select count(*) from photo_like where photo_id = #{photoId} and user_id = #{userId}
+    </select>
+
+    <insert id="insertFavorite">
+        insert ignore into photo_favorite(photo_id, user_id, create_time)
+        values (#{photoId}, #{userId}, now())
+    </insert>
+
+    <select id="countFavorite" resultType="long">
+        select count(*) from photo_favorite where photo_id = #{photoId}
+    </select>
+
+    <select id="existsFavorite" resultType="long">
+        select count(*) from photo_favorite where photo_id = #{photoId} and user_id = #{userId}
+    </select>
+
+    <insert id="insertComment" parameterType="com.ssjheima.pojo.PhotoComment">
+        insert into photo_comment(photo_id, user_id, content, create_time)
+        values (#{photoId}, #{userId}, #{content}, now())
+    </insert>
+
+    <select id="listComments" resultType="com.ssjheima.pojo.PhotoComment">
+        select
+            c.id,
+            c.photo_id,
+            c.user_id,
+            u.username,
+            c.content,
+            c.create_time
+        from photo_comment c
+        join user_account u on u.id = c.user_id
+        where c.photo_id = #{photoId}
+        order by c.create_time desc
+    </select>
+
+    <delete id="deleteLikesByPhoto">
+        delete from photo_like where photo_id = #{photoId}
+    </delete>
+
+    <delete id="deleteFavoritesByPhoto">
+        delete from photo_favorite where photo_id = #{photoId}
+    </delete>
+
+    <delete id="deleteCommentsByPhoto">
+        delete from photo_comment where photo_id = #{photoId}
+    </delete>
+
+</mapper>
+
